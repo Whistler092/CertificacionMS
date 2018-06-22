@@ -51,8 +51,13 @@ namespace CertificacionMS.Controllers
              *                  other threads will have to wait before it's finished
              * */
             output = new List<string>();
-            Thread t = new Thread(new ThreadStart(ThreadMethod));
-            t.Start();
+            output.Add("....");
+            //Thread t = new Thread(new ThreadStart(ThreadMethod)); 
+            Thread t = new Thread(new ParameterizedThreadStart(ThreadMethod));//Execute method with parameters
+            t.IsBackground = false; //
+            //Foreground  threads can be used to keep an application alive 
+            //t.Start();
+            t.Start(5); //Passing parameters to Thread Methods
 
             for (int i = 0; i < 10; i++)
             {
@@ -75,6 +80,36 @@ namespace CertificacionMS.Controllers
                 Console.WriteLine($"ThreadProc: {i}");
                 Thread.Sleep(0);
             }
+        }
+
+        public static void ThreadMethod(object o)
+        {
+            for (int i = 0; i < (int)o; i++)
+            {
+                output.Add($"ThreadProc: {i}");
+                Console.WriteLine($"ThreadProc: {i}");
+                Thread.Sleep(0);
+            }
+        }
+
+        public static void MainThreadStop(){
+
+            bool stopped = false;
+            Thread thread = new Thread(new ThreadStart(() =>
+            {
+                while(!stopped){
+                    Console.WriteLine("Running ...");
+                    Thread.Sleep(1000);
+                }
+            }));
+
+            thread.Start();
+
+            Console.WriteLine("Press Any Key to exit");
+            Console.ReadKey();
+
+            stopped = true;
+            thread.Join();
         }
     }
 }
